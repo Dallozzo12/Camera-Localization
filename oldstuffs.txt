@@ -1,0 +1,36 @@
+ %{
+    % Compute next pose given the odometry
+    if (time==1)
+        quat = [NoisyOdometry(1,7),NoisyOdometry(1,4:6)];
+        R = quat2rotm(quat);
+        t = NoisyOdometry(1,1:3)';
+        rot_trasl = [R(1,:),t(1);R(2,:),t(2);R(3,:),t(3); 0,0,0,1]; % rototraslation from one pose to the next
+        new_R = init_pose(1:3,1:3)*R;      % new robot state orientation
+        new_t = init_pose(1:3,4)+t;        % new robot state position
+        curr_cameraPose = [new_R(1,:),new_t(1);new_R(2,:),new_t(2);new_R(3,:),new_t(3); 0,0,0,1]; % new state homogeneous transformation
+        
+        % Transform all landmarks from one reference frame to the next: at the first iteration the landmarks positions are transformed
+        % from the ground truth position to the first RF; at the second iteration from the first RF to the second RF and so on.
+        for i = 1:size(Landmark_GroundTruth,1)
+            All_Landmark_RobotFrame(i,:) = [Landmark_GroundTruth(i,1), [inv(rot_trasl) * [Landmark_GroundTruth(i,2:end),1]']'];
+                                                                  %(Landmark_GroundTruth(i,2:end)-rot_trasl(1:3,4)')*rot_trasl(1:3,1:3);
+            % this is valid only for the first iteration
+            % from the second will be All_Landmark_RobotFrame(i,2:end) = [rot_trasl * [All_Landmark_RobotFrame(i,2:end),1]']';
+        end
+    else
+        quat = [NoisyOdometry(time,7),NoisyOdometry(time,4:6)];
+        R = quat2rotm(quat);
+        t = NoisyOdometry(time,1:3)';
+        rot_trasl = [R(1,:),t(1);R(2,:),t(2);R(3,:),t(3); 0,0,0,1]; % rototraslation from one pose to the next
+        new_R = curr_cameraPose(1:3,1:3)*R;       % new state orientation
+        new_t = curr_cameraPose(1:3,4)+t;         % new state position
+        curr_cameraPose = [new_R(1,:),new_t(1);new_R(2,:),new_t(2);new_R(3,:),new_t(3); 0,0,0,1]; % new state homogeneous transformation
+
+        for i = 1:size(Landmark_GroundTruth,1)
+            All_Landmark_RobotFrame(i,2:end) = [inv(rot_trasl) * All_Landmark_RobotFrame(i,2:end)']';
+                                          %(Landmark_All_Landmark_RobotFrame(i,2:end)-rot_trasl(1:3,4)')*rot_trasl(1:3,1:3);
+            %a(i,:) = (All_Landmark_RobotFrame(i,2:end-1)-rot_trasl(1:3,4)')*rot_trasl(1:3,1:3)
+        end
+    end
+
+ %}
