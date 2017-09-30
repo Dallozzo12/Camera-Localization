@@ -1,11 +1,11 @@
-function [chi, x_new]=ICP2D(X,P,Z)
+function [chi, x_new]=ICP2D(X,P,Z, camera)
 chi=0;
 %cumulative chi2
-H=zeros(3,3); %accumulators for H and b
-b=zeros(3,1);
+H=zeros(6,6); %accumulators for H and b
+b=zeros(6,1);
 for(i=1:size(P,2))
 p=P(:,i); z=Z(:,i);
-[e,J]=errorAndJacobian2D(X,p,z);
+[e,J]=errorAndJacobian2D(X,p,z, camera);
 H = H+J'*J;
 %assemble H and B
 b = b+J'*e;
