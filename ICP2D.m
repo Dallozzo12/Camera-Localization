@@ -1,4 +1,4 @@
-function [chi, x_new]=ICP2D(X,P,Z, camera)
+function [X, chi]=ICP2D(X,P,Z, camera)
 chi=0;
 %cumulative chi2
 H=zeros(6,6); %accumulators for H and b
@@ -13,8 +13,10 @@ chi = chi+e'*e;
 %update cumulative error
 end
 dx=(-H\b);
-v2t3(dx)
+v2t3(dx);
 %solve the linear system
-X=v2t3(dx)*X;
+size(X);
+size(v2t3(dx));
+X=v2t(dx)*X;
 %apply perturbation
 end
