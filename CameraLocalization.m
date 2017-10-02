@@ -37,9 +37,9 @@ for i=2:length(Start_End_PoseID)
     
     onepose_indeces = find(poseID_obsLandmID_UVD(:,1)==new_id); %get the current pose indeces in the observations vector.
     land_ids = poseID_obsLandmID_UVD(onepose_indeces,2); % get the ids of the landmarks observed from that position ID.
-    %BackProjectedLandmarks = backproject(poseID_obsLandmID_UVD(onepose_indeces,3:end),CameraCalibration); % backproject landmarks from camera to world in camera reference frame.
+    BackProjectedLandmarks = backproject(poseID_obsLandmID_UVD(onepose_indeces,3:end),CameraCalibration); % backproject landmarks from camera to world in camera reference frame.
     
-    %BackProjectedLandmarks = [land_ids BackProjectedLandmarks];
+    BackProjectedLandmarks = [land_ids BackProjectedLandmarks]
     [~,landm_pos] = ismember(land_ids,Landmark_GroundTruth(:,1)); % get the position in the world frame of the observed landmarks.
     Landmarks_InWorld = Landmark_GroundTruth(landm_pos,1:end);
 
@@ -47,7 +47,8 @@ for i=2:length(Start_End_PoseID)
     
     Robot_Pose_Guess(:,:,i);
     
-    [Robot_Pose_Adjusted(:,:,i), cumulative_error(:,i)]=ICP(Robot_Pose_Guess(:,:,i),Landmarks_InWorld(:,2:end)',Image_Landmarks, 3, 0.001, 10e-6, H_odom(4:6,4:6), CameraCalibration);
+    %[Robot_Pose_Adjusted(:,:,i), cumulative_error(:,i)]=ICP(Robot_Pose_Guess(:,:,i),Landmarks_InWorld(:,2:end)',Image_Landmarks, 3, 0.001, 10e-6, H_odom(4:6,4:6), CameraCalibration);
+    [Robot_Pose_Adjusted(:,:,i), cumulative_error(:,i)]=ICP(Robot_Pose_Guess(:,:,i),Landmarks_InWorld(:,2:end)',BackProjectedLandmarks(:,2:end)', 3, 0.001, 10e-6, H_odom(4:6,4:6), CameraCalibration);
     
     % qua fai i plot
     

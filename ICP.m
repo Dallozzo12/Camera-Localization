@@ -3,14 +3,16 @@ function [X, chi_stats]=ICP(X_guess, P, Z, num_iterations, damping, kernel_thres
 X=X_guess;
 chi_stats=zeros(1,num_iterations);
 num_inliers=zeros(1,num_iterations);
-error = zeros(2,1);
+%error = zeros(2,1);
+error = zeros(3,1);
 total_error = [];
 
 for iteration=1:num_iterations
     H=zeros(6,6);
     b=zeros(6,1);
     chi_stats(iteration)=0;
-    e = zeros(2,num_iterations);
+    %e = zeros(2,num_iterations);
+    e = zeros(3,num_iterations);
 
     for i=1:size(P,2)
         [e(:,i),J] = errorAndJacobian(X, P(:,i), Z(:,i), camera);
